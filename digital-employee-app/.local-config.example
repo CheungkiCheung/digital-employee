@@ -1,0 +1,4 @@
+# Copy this file to .local-config and fill values locally.
+# Never commit real credentials.
+ALIYUN_USERNAME=""
+ALIYUN_PASSWORD=""

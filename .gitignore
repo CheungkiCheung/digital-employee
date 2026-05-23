@@ -1,0 +1,25 @@
+# Maven
+target/
+*.class
+
+# Logs
+*.log
+logs/
+
+# Runtime / local config
+.env
+.env.*
+!.env.example
+.local-config
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak

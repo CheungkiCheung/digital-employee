@@ -1,0 +1,36 @@
+{
+  "$schema": "./docs/harness/feature-list.schema.json",
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "DDD project scaffold",
+      "behavior": "Repository contains a buildable Java 17 Maven multi-module DDD hexagonal architecture scaffold for the Digital Employee system.",
+      "verification": "mvn clean install -DskipTests",
+      "dependencies": [],
+      "status": "passing",
+      "evidence": "2026-05-23: `mvn clean install -DskipTests` completed with BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-002",
+      "name": "Agent harness constraints",
+      "behavior": "Repository contains startup, feature-state, architecture, verification, progress, and handoff artifacts so future agent sessions can continue without drifting.",
+      "verification": "./init.sh",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: `./init.sh` passed. It validated feature_list.json, checked DDD architecture boundaries, and completed `mvn clean install -DskipTests` with BUILD SUCCESS."
+    },
+    {
+      "id": "feat-003",
+      "name": "First digital employee capability",
+      "behavior": "Define and implement the first concrete Digital Employee business capability after the user provides requirements.",
+      "verification": "To be set when requirements are known; must include at least `./init.sh` plus feature-specific tests or API checks.",
+      "dependencies": [
+        "feat-002"
+      ],
+      "status": "blocked",
+      "evidence": "Blocked until the user specifies the first business capability."
+    }
+  ]
+}

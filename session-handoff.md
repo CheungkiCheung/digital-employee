@@ -3,7 +3,7 @@
 ## Current Objective
 
 - Goal: Continue the Claude Code runtime migration into the Digital Employee DDD framework.
-- Current status: `feat-001` through `feat-037` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
+- Current status: `feat-001` through `feat-038` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
 - Active feature: none.
 - Branch / commit at original scaffold point: `5de09fd chore: initialize digital employee harness`.
 
@@ -38,6 +38,7 @@
 - [x] Added an app-level API regression proving `digital-employee.conversation.repository=file` writes conversation history to disk and a new file repository instance can reload it.
 - [x] Added OpenAI-compatible chat completions request DTO mapping without network calls or secret values.
 - [x] Added external model base URL configuration through the Infrastructure gateway validation boundary without network calls or secret values.
+- [x] Added external model gateway execution policy metadata for timeout and retry attempts before any future network execution.
 - [x] Runtime acceptance checkpoint proving task creation and conversation file-read paths.
 
 ## Latest Verification Evidence
@@ -142,6 +143,10 @@
 | feat-037 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 9 tests, 0 failures, 0 errors. |
 | feat-037 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
 | feat-037 harness check | `./init.sh` | Passing | feature_list.json valid (37 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
+| feat-038 red test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` | Failed as expected | `ExternalModelGatewayExecutionPolicyDTO` did not exist before execution policy metadata was added. |
+| feat-038 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 10 tests, 0 failures, 0 errors. |
+| feat-038 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
+| feat-038 harness check | `./init.sh` | Passing | feature_list.json valid (38 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
 
 ## Important Files
 
@@ -165,6 +170,7 @@
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayRequestDTO.java` - external model request DTO without secret values.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayResponseDTO.java` - external model response DTO.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayToolDTO.java` - structured external tool descriptor DTO.
+- `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayExecutionPolicyDTO.java` - external model timeout and retry policy DTO.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayToolList.java` - tool list helper that preserves name-based contains checks.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/OpenAiChatCompletionRequestDTO.java` - OpenAI-compatible chat completions request DTO.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/config/ModelDecisionPortConfiguration.java` - configuration-based model decision port selection.

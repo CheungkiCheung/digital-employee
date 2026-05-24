@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-05-24 16:53 Asia/Shanghai  
+**Last Updated:** 2026-05-24 16:57 Asia/Shanghai  
 **Active Feature:** none  
 **Repository:** `/Users/zhangqixiang/0_2实习/DDDAGENT`  
 **Target Remote:** `https://github.com/CheungkiCheung/digital-employee.git`
@@ -50,6 +50,7 @@
 - [x] Implemented and verified `feat-035`, file-backed conversation API persistence slice.
 - [x] Implemented and verified `feat-036`, OpenAI-compatible chat completions request mapping.
 - [x] Implemented and verified `feat-037`, external model base URL configuration boundary.
+- [x] Implemented and verified `feat-038`, external model gateway execution policy.
 
 ## What's In Progress
 
@@ -220,6 +221,10 @@
 - [x] `feat-037` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 9 tests, 0 failures, 0 errors.
 - [x] `feat-037` architecture verification: `bash scripts/check-architecture.sh` passed.
 - [x] `feat-037` harness verification: `./init.sh` passed with feature_list.json valid (37 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
+- [x] `feat-038` red verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` failed because `ExternalModelGatewayExecutionPolicyDTO` did not exist.
+- [x] `feat-038` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 10 tests, 0 failures, 0 errors.
+- [x] `feat-038` architecture verification: `bash scripts/check-architecture.sh` passed.
+- [x] `feat-038` harness verification: `./init.sh` passed with feature_list.json valid (38 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
 
 ## Sprint Contract: feat-004 - Claude Code Domain Runtime Slice
 

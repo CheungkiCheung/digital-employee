@@ -7,6 +7,7 @@ import com.digitalemployee.domain.conversation.model.valobj.ModelDecisionVO;
 import com.digitalemployee.domain.conversation.model.valobj.ModelProviderVO;
 import com.digitalemployee.infrastructure.gateway.ExternalModelGatewayMapper;
 import com.digitalemployee.infrastructure.gateway.ExternalModelGatewayService;
+import com.digitalemployee.infrastructure.gateway.dto.ExternalModelGatewayExecutionPolicyDTO;
 import com.digitalemployee.infrastructure.gateway.dto.ExternalModelGatewayRequestDTO;
 import com.digitalemployee.infrastructure.gateway.dto.ExternalModelGatewayResponseDTO;
 
@@ -43,10 +44,17 @@ public class ExternalModelDecisionPort implements IModelDecisionPort {
     @Override
     public ModelDecisionVO decideNextAction(ModelDecisionRequestVO request) {
         ExternalModelGatewayRequestDTO gatewayRequest = gatewayMapper.toGatewayRequest(model, request);
-        ExternalModelGatewayResponseDTO gatewayResponse = gatewayService.complete(provider, baseUrl, gatewayRequest);
+        ExternalModelGatewayResponseDTO gatewayResponse = gatewayService.complete(provider, baseUrl, defaultExecutionPolicy(), gatewayRequest);
         return ModelDecisionVO.builder()
                 .type(ModelDecisionTypeVO.DIRECT_RESPONSE)
                 .directAnswer(gatewayMapper.toDirectAnswer(gatewayResponse))
+                .build();
+    }
+
+    private ExternalModelGatewayExecutionPolicyDTO defaultExecutionPolicy() {
+        return ExternalModelGatewayExecutionPolicyDTO.builder()
+                .timeoutMs(30000)
+                .retryAttempts(0)
                 .build();
     }
 

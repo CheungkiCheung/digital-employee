@@ -405,6 +405,17 @@
       ],
       "status": "passing",
       "evidence": "2026-05-24: TDD red first failed because `ModelDecisionPortConfiguration`, `ExternalModelDecisionPort`, and `ExternalModelGatewayService` did not accept a base URL parameter. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` (9 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (37 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-038",
+      "name": "External model gateway execution policy",
+      "behavior": "External model gateway calls carry explicit timeout and retry-attempt policy metadata, and invalid policy values are rejected before any future network execution.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-037"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `ExternalModelGatewayExecutionPolicyDTO` did not exist. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` (10 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (38 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
     }
   ]
 }

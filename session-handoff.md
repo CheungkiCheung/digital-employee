@@ -3,7 +3,7 @@
 ## Current Objective
 
 - Goal: Continue the Claude Code runtime migration into the Digital Employee DDD framework.
-- Current status: `feat-001` through `feat-041` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
+- Current status: `feat-001` through `feat-042` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
 - Active feature: none.
 - Branch / commit at original scaffold point: `5de09fd chore: initialize digital employee harness`.
 
@@ -42,6 +42,7 @@
 - [x] Configured external model gateway timeout and retry-attempt policy through Spring properties.
 - [x] Added explicit external model network execution switch before real HTTP calls.
 - [x] Added replaceable external model HTTP client boundary behind the network switch.
+- [x] Added OpenAI-compatible HTTP adapter verified against a local fake server only.
 - [x] Runtime acceptance checkpoint proving task creation and conversation file-read paths.
 
 ## Latest Verification Evidence
@@ -162,6 +163,10 @@
 | feat-041 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ModelDecisionPortSelectionTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 14 tests, 0 failures, 0 errors. |
 | feat-041 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
 | feat-041 harness check | `./init.sh` | Passing | feature_list.json valid (41 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
+| feat-042 red test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=OpenAiCompatibleHttpClientTest -Dsurefire.failIfNoSpecifiedTests=false` | Failed as expected | `OpenAiCompatibleHttpClient` did not exist before the fake-server adapter slice. |
+| feat-042 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=OpenAiCompatibleHttpClientTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ModelDecisionPortSelectionTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 15 tests, 0 failures, 0 errors. |
+| feat-042 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
+| feat-042 harness check | `./init.sh` | Passing | feature_list.json valid (42 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
 
 ## Important Files
 
@@ -183,6 +188,7 @@
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/ExternalModelGatewayMapper.java` - external gateway DTO mapper.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/ExternalModelGatewayService.java` - no-network external model gateway service boundary.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/IExternalModelHttpClient.java` - replaceable HTTP client boundary for future network-enabled external model calls.
+- `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/OpenAiCompatibleHttpClient.java` - JDK HTTP adapter for OpenAI-compatible chat completions, tested with a local fake server only.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayRequestDTO.java` - external model request DTO without secret values.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayResponseDTO.java` - external model response DTO.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayToolDTO.java` - structured external tool descriptor DTO.
@@ -230,14 +236,14 @@
 ## Blockers / Risks
 
 - `feat-003` remains blocked until the user gives concrete Digital Employee business capability requirements.
-- Current model behavior is still deterministic/local by default. External provider selection, structured gateway DTO mapping, no-network gateway service boundary, provider/model/input validation, an explicit network-enabled switch, and a replaceable HTTP client boundary exist; no real Anthropic/OpenAI HTTP adapter has been wired yet.
+- Current model behavior is still deterministic/local by default. External provider selection, structured gateway DTO mapping, no-network gateway service boundary, provider/model/input validation, an explicit network-enabled switch, a replaceable HTTP client boundary, and an OpenAI-compatible HTTP adapter tested against a local fake server exist; the Spring runtime does not wire the real adapter by default yet.
 - External provider selection accepts provider, model, API-key environment variable name, base URL, timeout, retry-attempt policy, and network-enabled switch; no real API key value is stored.
 
 ## Recommended Next Step
 
 Start the next Goal-mode slice with WIP=1. Good next choices:
 
-- Model route: add a real OpenAI-compatible HTTP adapter behind `IExternalModelHttpClient`, tested with a local fake server before any real API smoke test.
+- Model route: wire `OpenAiCompatibleHttpClient` through Spring configuration using the configured API-key environment variable name, keeping network disabled by default.
 - Persistence route: add task persistence behind `ITaskRepository` when the runtime needs durable tasks.
 - Runtime route: add another Claude Code-style tool boundary if needed by the next acceptance milestone.
 

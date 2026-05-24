@@ -449,6 +449,17 @@
       ],
       "status": "passing",
       "evidence": "2026-05-24: TDD red first failed during Infrastructure test compilation because `IExternalModelHttpClient` did not exist; a second red exposed that delegated OpenAI-compatible requests dropped tool metadata. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ModelDecisionPortSelectionTest -Dsurefire.failIfNoSpecifiedTests=false` (14 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (41 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-042",
+      "name": "OpenAI-compatible HTTP adapter fake-server slice",
+      "behavior": "Infrastructure provides an OpenAI-compatible HTTP client adapter behind the external model HTTP client boundary, verified against a local fake server without calling any real external API or storing secret values.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=OpenAiCompatibleHttpClientTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ModelDecisionPortSelectionTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-041"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed during Infrastructure test compilation because `OpenAiCompatibleHttpClient` did not exist. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=OpenAiCompatibleHttpClientTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ModelDecisionPortSelectionTest -Dsurefire.failIfNoSpecifiedTests=false` (15 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (42 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
     }
   ]
 }

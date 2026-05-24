@@ -18,11 +18,12 @@ public class ModelDecisionPortConfiguration {
     public IModelDecisionPort modelDecisionPort(
             @Value("${digital-employee.model.provider:deterministic}") String provider,
             @Value("${digital-employee.model.name:local-rules}") String model,
-            @Value("${digital-employee.model.api-key-env-name:}") String apiKeyEnvName) {
+            @Value("${digital-employee.model.api-key-env-name:}") String apiKeyEnvName,
+            @Value("${digital-employee.model.base-url:}") String baseUrl) {
         if (DETERMINISTIC_PROVIDER.equalsIgnoreCase(provider)) {
             return new DeterministicModelDecisionPort();
         }
-        return new ExternalModelDecisionPort(provider, model, apiKeyEnvName,
+        return new ExternalModelDecisionPort(provider, model, apiKeyEnvName, baseUrl,
                 externalModelGatewayService(), externalModelGatewayMapper());
     }
 

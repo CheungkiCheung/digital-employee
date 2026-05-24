@@ -15,15 +15,17 @@ public class ExternalModelDecisionPort implements IModelDecisionPort {
     private final String provider;
     private final String model;
     private final String apiKeyEnvName;
+    private final String baseUrl;
     private final ExternalModelGatewayService gatewayService;
     private final ExternalModelGatewayMapper gatewayMapper;
 
-    public ExternalModelDecisionPort(String provider, String model, String apiKeyEnvName,
+    public ExternalModelDecisionPort(String provider, String model, String apiKeyEnvName, String baseUrl,
                                      ExternalModelGatewayService gatewayService,
                                      ExternalModelGatewayMapper gatewayMapper) {
         this.provider = provider;
         this.model = model;
         this.apiKeyEnvName = apiKeyEnvName;
+        this.baseUrl = baseUrl;
         this.gatewayService = gatewayService;
         this.gatewayMapper = gatewayMapper;
     }
@@ -41,7 +43,7 @@ public class ExternalModelDecisionPort implements IModelDecisionPort {
     @Override
     public ModelDecisionVO decideNextAction(ModelDecisionRequestVO request) {
         ExternalModelGatewayRequestDTO gatewayRequest = gatewayMapper.toGatewayRequest(model, request);
-        ExternalModelGatewayResponseDTO gatewayResponse = gatewayService.complete(provider, gatewayRequest);
+        ExternalModelGatewayResponseDTO gatewayResponse = gatewayService.complete(provider, baseUrl, gatewayRequest);
         return ModelDecisionVO.builder()
                 .type(ModelDecisionTypeVO.DIRECT_RESPONSE)
                 .directAnswer(gatewayMapper.toDirectAnswer(gatewayResponse))

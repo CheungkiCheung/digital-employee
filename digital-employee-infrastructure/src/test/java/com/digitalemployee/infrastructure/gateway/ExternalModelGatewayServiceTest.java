@@ -14,7 +14,7 @@ public class ExternalModelGatewayServiceTest {
     public void shouldReturnDisabledResponseWithoutSecretValuesOrNetworkCall() {
         ExternalModelGatewayService service = new ExternalModelGatewayService();
 
-        ExternalModelGatewayResponseDTO response = service.complete("openai", ExternalModelGatewayRequestDTO.builder()
+        ExternalModelGatewayResponseDTO response = service.complete("openai", "https://api.xiaomimimo.com/v1/chat/completions", ExternalModelGatewayRequestDTO.builder()
                 .model("gpt-5.4")
                 .conversationId("conv-gateway-service")
                 .input("hello")
@@ -23,6 +23,7 @@ public class ExternalModelGatewayServiceTest {
 
         Assert.assertTrue(response.getAnswer().contains("external model gateway is configured but network execution is disabled"));
         Assert.assertTrue(response.getAnswer().contains("openai/gpt-5.4"));
+        Assert.assertTrue(response.getAnswer().contains("https://api.xiaomimimo.com/v1/chat/completions"));
         Assert.assertFalse(response.toString().contains("OPENAI_API_KEY"));
         Assert.assertFalse(response.toString().contains("sk-"));
     }
@@ -32,7 +33,7 @@ public class ExternalModelGatewayServiceTest {
         ExternalModelGatewayService service = new ExternalModelGatewayService();
 
         try {
-            service.complete(" ", validRequest());
+            service.complete(" ", "https://api.xiaomimimo.com/v1/chat/completions", validRequest());
             Assert.fail("Expected blank provider to be rejected.");
         } catch (IllegalArgumentException exception) {
             Assert.assertTrue(exception.getMessage().contains("provider"));
@@ -46,7 +47,7 @@ public class ExternalModelGatewayServiceTest {
         ExternalModelGatewayService service = new ExternalModelGatewayService();
 
         try {
-            service.complete("openai", ExternalModelGatewayRequestDTO.builder()
+            service.complete("openai", "https://api.xiaomimimo.com/v1/chat/completions", ExternalModelGatewayRequestDTO.builder()
                     .model(" ")
                     .conversationId("conv-gateway-service")
                     .input("hello")
@@ -65,7 +66,7 @@ public class ExternalModelGatewayServiceTest {
         ExternalModelGatewayService service = new ExternalModelGatewayService();
 
         try {
-            service.complete("openai", ExternalModelGatewayRequestDTO.builder()
+            service.complete("openai", "https://api.xiaomimimo.com/v1/chat/completions", ExternalModelGatewayRequestDTO.builder()
                     .model("gpt-5.4")
                     .conversationId("conv-gateway-service")
                     .input(" ")
@@ -74,6 +75,20 @@ public class ExternalModelGatewayServiceTest {
             Assert.fail("Expected blank input to be rejected.");
         } catch (IllegalArgumentException exception) {
             Assert.assertTrue(exception.getMessage().contains("input"));
+            Assert.assertFalse(exception.getMessage().contains("OPENAI_API_KEY"));
+            Assert.assertFalse(exception.getMessage().contains("sk-"));
+        }
+    }
+
+    @Test
+    public void shouldRejectBlankBaseUrlBeforeGatewayExecution() {
+        ExternalModelGatewayService service = new ExternalModelGatewayService();
+
+        try {
+            service.complete("openai", " ", validRequest());
+            Assert.fail("Expected blank base URL to be rejected.");
+        } catch (IllegalArgumentException exception) {
+            Assert.assertTrue(exception.getMessage().contains("baseUrl"));
             Assert.assertFalse(exception.getMessage().contains("OPENAI_API_KEY"));
             Assert.assertFalse(exception.getMessage().contains("sk-"));
         }

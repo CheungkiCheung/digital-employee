@@ -5,8 +5,9 @@ import com.digitalemployee.infrastructure.gateway.dto.ExternalModelGatewayRespon
 
 public class ExternalModelGatewayService {
 
-    public ExternalModelGatewayResponseDTO complete(String provider, ExternalModelGatewayRequestDTO request) {
+    public ExternalModelGatewayResponseDTO complete(String provider, String baseUrl, ExternalModelGatewayRequestDTO request) {
         requireText(provider, "provider");
+        requireText(baseUrl, "baseUrl");
         if (request == null) {
             throw new IllegalArgumentException("external model gateway request is required");
         }
@@ -15,7 +16,7 @@ public class ExternalModelGatewayService {
 
         return ExternalModelGatewayResponseDTO.builder()
                 .answer("external model gateway is configured but network execution is disabled: "
-                        + provider + "/" + request.getModel())
+                        + provider + "/" + request.getModel() + " @ " + baseUrl)
                 .build();
     }
 

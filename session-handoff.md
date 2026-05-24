@@ -3,7 +3,7 @@
 ## Current Objective
 
 - Goal: Continue the Claude Code runtime migration into the Digital Employee DDD framework.
-- Current status: `feat-001` through `feat-036` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
+- Current status: `feat-001` through `feat-037` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
 - Active feature: none.
 - Branch / commit at original scaffold point: `5de09fd chore: initialize digital employee harness`.
 
@@ -37,6 +37,7 @@
 - [x] Added Spring Infrastructure configuration to select the in-memory conversation history repository by default or the file-backed repository when configured.
 - [x] Added an app-level API regression proving `digital-employee.conversation.repository=file` writes conversation history to disk and a new file repository instance can reload it.
 - [x] Added OpenAI-compatible chat completions request DTO mapping without network calls or secret values.
+- [x] Added external model base URL configuration through the Infrastructure gateway validation boundary without network calls or secret values.
 - [x] Runtime acceptance checkpoint proving task creation and conversation file-read paths.
 
 ## Latest Verification Evidence
@@ -137,6 +138,10 @@
 | feat-036 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 9 tests, 0 failures, 0 errors. |
 | feat-036 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
 | feat-036 harness check | `./init.sh` | Passing | feature_list.json valid (36 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
+| feat-037 red test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` | Failed as expected | `ModelDecisionPortConfiguration`, `ExternalModelDecisionPort`, and `ExternalModelGatewayService` did not accept a base URL parameter. |
+| feat-037 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 9 tests, 0 failures, 0 errors. |
+| feat-037 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
+| feat-037 harness check | `./init.sh` | Passing | feature_list.json valid (37 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
 
 ## Important Files
 
@@ -204,13 +209,14 @@
 
 - `feat-003` remains blocked until the user gives concrete Digital Employee business capability requirements.
 - Current model behavior is still deterministic/local by default. External provider selection, structured gateway DTO mapping, no-network gateway service boundary, and provider/model/input validation exist; no Anthropic/OpenAI network gateway has been wired yet.
+- External provider selection accepts provider, model, API-key environment variable name, and base URL; no real API key value is stored.
 
 ## Recommended Next Step
 
 Start the next Goal-mode slice with WIP=1. Good next choices:
 
-- Persistence route: add an app-level vertical slice proving `digital-employee.conversation.repository=file` persists conversation history through the configured Spring runtime.
-- Model route: add OpenAI-compatible chat-completions request mapping for future external provider execution, without network calls or secrets.
+- Model route: add external gateway execution guardrails around timeout/retry metadata before real network calls.
+- Persistence route: add task persistence behind `ITaskRepository` when the runtime needs durable tasks.
 - Runtime route: add another Claude Code-style tool boundary if needed by the next acceptance milestone.
 
 ## Next Session Startup

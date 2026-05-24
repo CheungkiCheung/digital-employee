@@ -12,7 +12,7 @@ public class ModelDecisionPortSelectionTest {
     public void shouldUseDeterministicProviderByDefault() {
         ModelDecisionPortConfiguration configuration = new ModelDecisionPortConfiguration();
 
-        IModelDecisionPort port = configuration.modelDecisionPort("deterministic", "local-rules", "");
+        IModelDecisionPort port = configuration.modelDecisionPort("deterministic", "local-rules", "", "");
 
         Assert.assertTrue(port instanceof DeterministicModelDecisionPort);
         Assert.assertEquals("deterministic", port.provider().getProvider());
@@ -23,7 +23,11 @@ public class ModelDecisionPortSelectionTest {
     public void shouldUseExternalProviderWhenConfigured() {
         ModelDecisionPortConfiguration configuration = new ModelDecisionPortConfiguration();
 
-        IModelDecisionPort port = configuration.modelDecisionPort("openai", "gpt-5.4", "OPENAI_API_KEY");
+        IModelDecisionPort port = configuration.modelDecisionPort(
+                "openai",
+                "gpt-5.4",
+                "OPENAI_API_KEY",
+                "https://api.xiaomimimo.com/v1/chat/completions");
 
         Assert.assertTrue(port instanceof ExternalModelDecisionPort);
         Assert.assertEquals("openai", port.provider().getProvider());

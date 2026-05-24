@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-05-24 16:49 Asia/Shanghai  
+**Last Updated:** 2026-05-24 16:53 Asia/Shanghai  
 **Active Feature:** none  
 **Repository:** `/Users/zhangqixiang/0_2实习/DDDAGENT`  
 **Target Remote:** `https://github.com/CheungkiCheung/digital-employee.git`
@@ -49,6 +49,7 @@
 - [x] Implemented and verified `feat-034`, configurable conversation history repository selection.
 - [x] Implemented and verified `feat-035`, file-backed conversation API persistence slice.
 - [x] Implemented and verified `feat-036`, OpenAI-compatible chat completions request mapping.
+- [x] Implemented and verified `feat-037`, external model base URL configuration boundary.
 
 ## What's In Progress
 
@@ -57,7 +58,7 @@
 ## What's Next
 
 1. Continue deeper runtime slices in Goal mode.
-2. Recommended next feature: add OpenAI-compatible chat-completions request mapping for the external model gateway without network calls or secrets.
+2. Recommended next feature: add external gateway request execution guardrails around timeout/retry metadata before real network calls.
 3. Keep WIP=1 and run `./init.sh` before claiming completion.
 
 ## Decisions Made
@@ -215,6 +216,10 @@
 - [x] `feat-036` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 9 tests, 0 failures, 0 errors.
 - [x] `feat-036` architecture verification: `bash scripts/check-architecture.sh` passed.
 - [x] `feat-036` harness verification: `./init.sh` passed with feature_list.json valid (36 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
+- [x] `feat-037` red verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` failed because `ModelDecisionPortConfiguration`, `ExternalModelDecisionPort`, and `ExternalModelGatewayService` did not accept a base URL parameter.
+- [x] `feat-037` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 9 tests, 0 failures, 0 errors.
+- [x] `feat-037` architecture verification: `bash scripts/check-architecture.sh` passed.
+- [x] `feat-037` harness verification: `./init.sh` passed with feature_list.json valid (37 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
 
 ## Sprint Contract: feat-004 - Claude Code Domain Runtime Slice
 

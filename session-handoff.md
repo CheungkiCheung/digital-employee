@@ -3,7 +3,7 @@
 ## Current Objective
 
 - Goal: Continue the Claude Code runtime migration into the Digital Employee DDD framework.
-- Current status: `feat-001` through `feat-034` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
+- Current status: `feat-001` through `feat-035` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
 - Active feature: none.
 - Branch / commit at original scaffold point: `5de09fd chore: initialize digital employee harness`.
 
@@ -35,6 +35,7 @@
 - [x] Added external model gateway request validation for provider, model, and input before future network execution.
 - [x] Added structured external model tool descriptor mapping with name, description, and default permission behavior.
 - [x] Added Spring Infrastructure configuration to select the in-memory conversation history repository by default or the file-backed repository when configured.
+- [x] Added an app-level API regression proving `digital-employee.conversation.repository=file` writes conversation history to disk and a new file repository instance can reload it.
 - [x] Runtime acceptance checkpoint proving task creation and conversation file-read paths.
 
 ## Latest Verification Evidence
@@ -126,6 +127,11 @@
 | feat-034 conversation regression | `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 10 tests, 0 failures, 0 errors; default in-memory repository still supports conversation API behavior. |
 | feat-034 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
 | feat-034 harness check | `./init.sh` | Passing | feature_list.json valid (34 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
+| feat-035 red/setup test | `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeFileConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` | Failed as expected | New test initially used `javax.annotation.Resource`, which is unavailable in the Spring Boot 3 test classpath. |
+| feat-035 behavioral red test | `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeFileConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` | Failed as expected | After switching to `@Autowired`, the test assertion expected a non-existent English deterministic response string while the API persisted the existing Chinese default response. |
+| feat-035 feature test | `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeFileConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 1 test, 0 failures, 0 errors; file-configured API history was reloaded by a new `FileConversationTurnRepository` instance. |
+| feat-035 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
+| feat-035 harness check | `./init.sh` | Passing | feature_list.json valid (35 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
 
 ## Important Files
 
@@ -160,6 +166,7 @@
 - `digital-employee-case/src/main/java/com/digitalemployee/cases/task/*` - task use-case orchestration.
 - `digital-employee-trigger/src/main/java/com/digitalemployee/trigger/http/TaskController.java` - task HTTP API.
 - `digital-employee-app/src/test/java/com/digitalemployee/test/DigitalEmployeeTaskApiTest.java` - task vertical-slice API tests.
+- `digital-employee-app/src/test/java/com/digitalemployee/test/DigitalEmployeeFileConversationApiTest.java` - file-backed conversation repository API persistence regression.
 - `digital-employee-domain/src/test/java/com/digitalemployee/domain/conversation/service/ConversationRuntimeServiceTest.java` - model request boundary tests.
 
 ## Current API Surface

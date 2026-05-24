@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-05-24 16:41 Asia/Shanghai  
+**Last Updated:** 2026-05-24 16:46 Asia/Shanghai  
 **Active Feature:** none  
 **Repository:** `/Users/zhangqixiang/0_2实习/DDDAGENT`  
 **Target Remote:** `https://github.com/CheungkiCheung/digital-employee.git`
@@ -47,6 +47,7 @@
 - [x] Implemented and verified `feat-032`, external model tool descriptor mapping.
 - [x] Implemented and verified `feat-033`, file conversation history repository adapter.
 - [x] Implemented and verified `feat-034`, configurable conversation history repository selection.
+- [x] Implemented and verified `feat-035`, file-backed conversation API persistence slice.
 
 ## What's In Progress
 
@@ -55,7 +56,7 @@
 ## What's Next
 
 1. Continue deeper runtime slices in Goal mode.
-2. Recommended next feature: prove the file-backed conversation repository through an app-level vertical slice with `digital-employee.conversation.repository=file`.
+2. Recommended next feature: add OpenAI-compatible chat-completions request mapping for the external model gateway without network calls or secrets.
 3. Keep WIP=1 and run `./init.sh` before claiming completion.
 
 ## Decisions Made
@@ -204,6 +205,11 @@
 - [x] `feat-034` conversation regression verification: `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 10 tests, 0 failures, 0 errors.
 - [x] `feat-034` architecture verification: `bash scripts/check-architecture.sh` passed.
 - [x] `feat-034` harness verification: `./init.sh` passed with feature_list.json valid (34 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
+- [x] `feat-035` red/setup verification: `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeFileConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` first failed during test compilation because `javax.annotation.Resource` was unavailable in the Spring Boot 3 test classpath.
+- [x] `feat-035` behavioral red verification: after switching to `@Autowired`, the same test failed because the assertion expected a non-existent English deterministic response string while the persisted assistant message used the existing Chinese default response.
+- [x] `feat-035` feature verification: `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeFileConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 1 test, 0 failures, 0 errors.
+- [x] `feat-035` architecture verification: `bash scripts/check-architecture.sh` passed.
+- [x] `feat-035` harness verification: `./init.sh` passed with feature_list.json valid (35 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
 
 ## Sprint Contract: feat-004 - Claude Code Domain Runtime Slice
 

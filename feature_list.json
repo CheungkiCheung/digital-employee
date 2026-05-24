@@ -372,6 +372,17 @@
       ],
       "status": "passing",
       "evidence": "2026-05-24: TDD red first failed because `ConversationTurnRepositoryConfiguration` did not exist. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ConversationTurnRepositoryConfigurationTest,FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` (3 tests, 0 failures, 0 errors). Conversation API regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (10 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (34 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-035",
+      "name": "File-backed conversation API persistence slice",
+      "behavior": "When the Spring runtime is configured with `digital-employee.conversation.repository=file`, the conversation API writes history through the file-backed repository so a new repository instance can reload the messages from disk.",
+      "verification": "mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeFileConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-034"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD setup first failed during test compilation because the new test used `javax.annotation.Resource`, which is not available in this Spring Boot 3 test classpath; after switching to `@Autowired`, the behavioral red failed because the assertion expected a non-existent English deterministic response string while the persisted assistant message used the existing Chinese default response. Green verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeFileConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (1 test, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (35 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
     }
   ]
 }

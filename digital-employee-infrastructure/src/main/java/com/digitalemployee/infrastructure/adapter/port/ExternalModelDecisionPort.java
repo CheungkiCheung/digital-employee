@@ -17,16 +17,21 @@ public class ExternalModelDecisionPort implements IModelDecisionPort {
     private final String model;
     private final String apiKeyEnvName;
     private final String baseUrl;
+    private final int timeoutMs;
+    private final int retryAttempts;
     private final ExternalModelGatewayService gatewayService;
     private final ExternalModelGatewayMapper gatewayMapper;
 
     public ExternalModelDecisionPort(String provider, String model, String apiKeyEnvName, String baseUrl,
+                                     int timeoutMs, int retryAttempts,
                                      ExternalModelGatewayService gatewayService,
                                      ExternalModelGatewayMapper gatewayMapper) {
         this.provider = provider;
         this.model = model;
         this.apiKeyEnvName = apiKeyEnvName;
         this.baseUrl = baseUrl;
+        this.timeoutMs = timeoutMs;
+        this.retryAttempts = retryAttempts;
         this.gatewayService = gatewayService;
         this.gatewayMapper = gatewayMapper;
     }
@@ -53,8 +58,8 @@ public class ExternalModelDecisionPort implements IModelDecisionPort {
 
     private ExternalModelGatewayExecutionPolicyDTO defaultExecutionPolicy() {
         return ExternalModelGatewayExecutionPolicyDTO.builder()
-                .timeoutMs(30000)
-                .retryAttempts(0)
+                .timeoutMs(timeoutMs)
+                .retryAttempts(retryAttempts)
                 .build();
     }
 

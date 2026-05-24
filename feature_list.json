@@ -416,6 +416,17 @@
       ],
       "status": "passing",
       "evidence": "2026-05-24: TDD red first failed because `ExternalModelGatewayExecutionPolicyDTO` did not exist. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` (10 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (38 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-039",
+      "name": "Configurable external model execution policy",
+      "behavior": "Spring model-provider configuration accepts external model timeout and retry-attempt properties and passes them into the external model gateway policy without changing Domain code or performing network calls.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-038"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed during Infrastructure test compilation because `ModelDecisionPortConfiguration#modelDecisionPort` and `ExternalModelDecisionPort` did not accept timeout/retry policy parameters. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` (11 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (39 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
     }
   ]
 }

@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-05-24 16:57 Asia/Shanghai  
+**Last Updated:** 2026-05-24 22:47 Asia/Shanghai
 **Active Feature:** none  
 **Repository:** `/Users/zhangqixiang/0_2实习/DDDAGENT`  
 **Target Remote:** `https://github.com/CheungkiCheung/digital-employee.git`
@@ -51,6 +51,7 @@
 - [x] Implemented and verified `feat-036`, OpenAI-compatible chat completions request mapping.
 - [x] Implemented and verified `feat-037`, external model base URL configuration boundary.
 - [x] Implemented and verified `feat-038`, external model gateway execution policy.
+- [x] Implemented and verified `feat-039`, configurable external model execution policy through Spring properties.
 
 ## What's In Progress
 
@@ -59,7 +60,7 @@
 ## What's Next
 
 1. Continue deeper runtime slices in Goal mode.
-2. Recommended next feature: add external gateway request execution guardrails around timeout/retry metadata before real network calls.
+2. Recommended next feature: add an explicit external model network execution enable/disable switch before real HTTP calls.
 3. Keep WIP=1 and run `./init.sh` before claiming completion.
 
 ## Decisions Made
@@ -225,6 +226,10 @@
 - [x] `feat-038` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 10 tests, 0 failures, 0 errors.
 - [x] `feat-038` architecture verification: `bash scripts/check-architecture.sh` passed.
 - [x] `feat-038` harness verification: `./init.sh` passed with feature_list.json valid (38 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
+- [x] `feat-039` red verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` failed during test compilation because `ModelDecisionPortConfiguration#modelDecisionPort` and `ExternalModelDecisionPort` did not accept timeout/retry policy parameters.
+- [x] `feat-039` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 11 tests, 0 failures, 0 errors.
+- [x] `feat-039` architecture verification: `bash scripts/check-architecture.sh` passed.
+- [x] `feat-039` harness verification: `./init.sh` passed with feature_list.json valid (39 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
 
 ## Sprint Contract: feat-004 - Claude Code Domain Runtime Slice
 

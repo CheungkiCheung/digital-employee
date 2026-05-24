@@ -16,6 +16,8 @@ public class ExternalModelDecisionPortTest {
     public void shouldExposeExternalProviderMetadataWithoutApiKeyValue() {
         ExternalModelDecisionPort port = new ExternalModelDecisionPort("openai", "gpt-5.4", "OPENAI_API_KEY",
                 "https://api.xiaomimimo.com/v1/chat/completions",
+                30000,
+                0,
                 new ExternalModelGatewayService(), new ExternalModelGatewayMapper());
 
         ModelProviderVO provider = port.provider();
@@ -31,6 +33,8 @@ public class ExternalModelDecisionPortTest {
     public void shouldRouteDecisionThroughGatewayServiceWithoutNetworkCall() {
         ExternalModelDecisionPort port = new ExternalModelDecisionPort("openai", "gpt-5.4", "OPENAI_API_KEY",
                 "https://api.xiaomimimo.com/v1/chat/completions",
+                45000,
+                2,
                 new ExternalModelGatewayService(), new ExternalModelGatewayMapper());
 
         ModelDecisionVO decision = port.decideNextAction(ModelDecisionRequestVO.builder()
@@ -43,6 +47,8 @@ public class ExternalModelDecisionPortTest {
         Assert.assertTrue(decision.getDirectAnswer().contains("external model gateway is configured but network execution is disabled"));
         Assert.assertTrue(decision.getDirectAnswer().contains("openai/gpt-5.4"));
         Assert.assertTrue(decision.getDirectAnswer().contains("https://api.xiaomimimo.com/v1/chat/completions"));
+        Assert.assertTrue(decision.getDirectAnswer().contains("timeoutMs=45000"));
+        Assert.assertTrue(decision.getDirectAnswer().contains("retryAttempts=2"));
     }
 
 }

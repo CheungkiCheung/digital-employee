@@ -3,7 +3,7 @@
 ## Current Objective
 
 - Goal: Continue the Claude Code runtime migration into the Digital Employee DDD framework.
-- Current status: `feat-001` through `feat-038` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
+- Current status: `feat-001` through `feat-039` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
 - Active feature: none.
 - Branch / commit at original scaffold point: `5de09fd chore: initialize digital employee harness`.
 
@@ -39,6 +39,7 @@
 - [x] Added OpenAI-compatible chat completions request DTO mapping without network calls or secret values.
 - [x] Added external model base URL configuration through the Infrastructure gateway validation boundary without network calls or secret values.
 - [x] Added external model gateway execution policy metadata for timeout and retry attempts before any future network execution.
+- [x] Configured external model gateway timeout and retry-attempt policy through Spring properties.
 - [x] Runtime acceptance checkpoint proving task creation and conversation file-read paths.
 
 ## Latest Verification Evidence
@@ -147,6 +148,10 @@
 | feat-038 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 10 tests, 0 failures, 0 errors. |
 | feat-038 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
 | feat-038 harness check | `./init.sh` | Passing | feature_list.json valid (38 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
+| feat-039 red test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` | Failed as expected | `ModelDecisionPortConfiguration#modelDecisionPort` and `ExternalModelDecisionPort` did not accept timeout/retry policy parameters. |
+| feat-039 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 11 tests, 0 failures, 0 errors. |
+| feat-039 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
+| feat-039 harness check | `./init.sh` | Passing | feature_list.json valid (39 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
 
 ## Important Files
 
@@ -215,13 +220,13 @@
 
 - `feat-003` remains blocked until the user gives concrete Digital Employee business capability requirements.
 - Current model behavior is still deterministic/local by default. External provider selection, structured gateway DTO mapping, no-network gateway service boundary, and provider/model/input validation exist; no Anthropic/OpenAI network gateway has been wired yet.
-- External provider selection accepts provider, model, API-key environment variable name, and base URL; no real API key value is stored.
+- External provider selection accepts provider, model, API-key environment variable name, base URL, timeout, and retry-attempt policy; no real API key value is stored.
 
 ## Recommended Next Step
 
 Start the next Goal-mode slice with WIP=1. Good next choices:
 
-- Model route: add external gateway execution guardrails around timeout/retry metadata before real network calls.
+- Model route: add an explicit network execution enable/disable switch before real HTTP calls.
 - Persistence route: add task persistence behind `ITaskRepository` when the runtime needs durable tasks.
 - Runtime route: add another Claude Code-style tool boundary if needed by the next acceptance milestone.
 

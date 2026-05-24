@@ -4,6 +4,7 @@ import com.digitalemployee.infrastructure.gateway.dto.ExternalModelGatewayReques
 import com.digitalemployee.infrastructure.gateway.dto.ExternalModelGatewayResponseDTO;
 import com.digitalemployee.infrastructure.gateway.dto.ExternalModelGatewayToolDTO;
 import com.digitalemployee.infrastructure.gateway.dto.ExternalModelGatewayExecutionPolicyDTO;
+import com.digitalemployee.infrastructure.gateway.dto.OpenAiChatCompletionRequestDTO;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,6 +42,26 @@ public class ExternalModelGatewayServiceTest {
         Assert.assertTrue(response.getAnswer().contains("openai/gpt-5.4"));
         Assert.assertTrue(response.getAnswer().contains("timeoutMs=45000"));
         Assert.assertTrue(response.getAnswer().contains("retryAttempts=2"));
+        Assert.assertFalse(response.toString().contains("OPENAI_API_KEY"));
+        Assert.assertFalse(response.toString().contains("sk-"));
+    }
+
+    @Test
+    public void shouldDelegateNetworkEnabledRequestToConfiguredHttpClient() {
+        RecordingExternalModelHttpClient httpClient = new RecordingExternalModelHttpClient();
+        ExternalModelGatewayService service = new ExternalModelGatewayService(httpClient);
+
+        ExternalModelGatewayResponseDTO response = service.complete("openai", "https://api.xiaomimimo.com/v1/chat/completions", policy(45000, 2), true, validRequest());
+
+        Assert.assertEquals("fake model answer", response.getAnswer());
+        Assert.assertEquals("openai", httpClient.provider);
+        Assert.assertEquals("https://api.xiaomimimo.com/v1/chat/completions", httpClient.baseUrl);
+        Assert.assertEquals(45000, httpClient.executionPolicy.getTimeoutMs());
+        Assert.assertEquals(2, httpClient.executionPolicy.getRetryAttempts());
+        Assert.assertEquals("gpt-5.4", httpClient.request.getModel());
+        Assert.assertEquals("hello", httpClient.request.getMessages().get(1).getContent());
+        Assert.assertEquals("file_read", httpClient.request.getTools().get(0).getFunction().getName());
+        Assert.assertEquals("Read a workspace file", httpClient.request.getTools().get(0).getFunction().getDescription());
         Assert.assertFalse(response.toString().contains("OPENAI_API_KEY"));
         Assert.assertFalse(response.toString().contains("sk-"));
     }
@@ -147,6 +168,29 @@ public class ExternalModelGatewayServiceTest {
                 .timeoutMs(timeoutMs)
                 .retryAttempts(retryAttempts)
                 .build();
+    }
+
+    private static class RecordingExternalModelHttpClient implements IExternalModelHttpClient {
+
+        private String provider;
+        private String baseUrl;
+        private ExternalModelGatewayExecutionPolicyDTO executionPolicy;
+        private OpenAiChatCompletionRequestDTO request;
+
+        @Override
+        public ExternalModelGatewayResponseDTO complete(String provider,
+                                                        String baseUrl,
+                                                        ExternalModelGatewayExecutionPolicyDTO executionPolicy,
+                                                        OpenAiChatCompletionRequestDTO request) {
+            this.provider = provider;
+            this.baseUrl = baseUrl;
+            this.executionPolicy = executionPolicy;
+            this.request = request;
+            return ExternalModelGatewayResponseDTO.builder()
+                    .answer("fake model answer")
+                    .build();
+        }
+
     }
 
 }

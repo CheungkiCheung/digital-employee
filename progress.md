@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-05-24 22:56 Asia/Shanghai
+**Last Updated:** 2026-05-24 23:02 Asia/Shanghai
 **Active Feature:** none  
 **Repository:** `/Users/zhangqixiang/0_2实习/DDDAGENT`  
 **Target Remote:** `https://github.com/CheungkiCheung/digital-employee.git`
@@ -53,6 +53,7 @@
 - [x] Implemented and verified `feat-038`, external model gateway execution policy.
 - [x] Implemented and verified `feat-039`, configurable external model execution policy through Spring properties.
 - [x] Implemented and verified `feat-040`, explicit external model network execution switch.
+- [x] Implemented and verified `feat-041`, external model HTTP client boundary with fake-client verification.
 
 ## What's In Progress
 
@@ -61,7 +62,7 @@
 ## What's Next
 
 1. Continue deeper runtime slices in Goal mode.
-2. Recommended next feature: add an HTTP client port boundary for OpenAI-compatible calls behind the network switch, using a fake/stub test first.
+2. Recommended next feature: add a real OpenAI-compatible HTTP adapter behind `IExternalModelHttpClient`, tested with a local fake server before any real API smoke test.
 3. Keep WIP=1 and run `./init.sh` before claiming completion.
 
 ## Decisions Made
@@ -235,6 +236,10 @@
 - [x] `feat-040` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 13 tests, 0 failures, 0 errors.
 - [x] `feat-040` architecture verification: `bash scripts/check-architecture.sh` passed.
 - [x] `feat-040` harness verification: `./init.sh` passed with feature_list.json valid (40 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
+- [x] `feat-041` red verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ModelDecisionPortSelectionTest -Dsurefire.failIfNoSpecifiedTests=false` first failed during test compilation because `IExternalModelHttpClient` did not exist; a second red exposed missing tool metadata in delegated OpenAI-compatible requests.
+- [x] `feat-041` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ModelDecisionPortSelectionTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 14 tests, 0 failures, 0 errors.
+- [x] `feat-041` architecture verification: `bash scripts/check-architecture.sh` passed.
+- [x] `feat-041` harness verification: `./init.sh` passed with feature_list.json valid (41 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
 
 ## Sprint Contract: feat-004 - Claude Code Domain Runtime Slice
 

@@ -438,6 +438,17 @@
       ],
       "status": "passing",
       "evidence": "2026-05-24: TDD red first failed during Infrastructure test compilation because `ExternalModelGatewayService#complete`, `ExternalModelDecisionPort`, and `ModelDecisionPortConfiguration#modelDecisionPort` did not accept a network-enabled switch. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` (13 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (40 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-041",
+      "name": "External model HTTP client boundary",
+      "behavior": "The external model gateway delegates network-enabled requests to a replaceable HTTP client boundary using OpenAI-compatible request mapping, while tests use a fake client and the default runtime still performs no network calls.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ModelDecisionPortSelectionTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-040"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed during Infrastructure test compilation because `IExternalModelHttpClient` did not exist; a second red exposed that delegated OpenAI-compatible requests dropped tool metadata. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ModelDecisionPortSelectionTest -Dsurefire.failIfNoSpecifiedTests=false` (14 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (41 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
     }
   ]
 }

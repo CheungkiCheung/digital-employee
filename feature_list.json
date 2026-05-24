@@ -31,6 +31,325 @@
       ],
       "status": "blocked",
       "evidence": "Blocked until the user specifies the first business capability."
+    },
+    {
+      "id": "feat-004",
+      "name": "Claude Code domain runtime slice",
+      "behavior": "Migrate the Claude Code core agent runtime concept into the Digital Employee DDD framework with a usable conversation API, tool permission decision, file-read tool execution, and recorded turn output.",
+      "verification": "mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && ./init.sh",
+      "dependencies": [
+        "feat-002"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red verified first with missing ConversationMessageRequestDTO. Green verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (1 test, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules. Manual runtime check passed: started app module on port 8091 and `POST /api/v1/conversations/manual-check/messages` with `请读取 AGENTS.md` returned code `0000`, `file_read`, `allow`, and AGENTS.md content."
+    },
+    {
+      "id": "feat-005",
+      "name": "Model decision port",
+      "behavior": "Conversation runtime asks a Domain-defined model decision port for the next action, with a deterministic infrastructure adapter that can choose file_read from natural file-inspection prompts without hardcoding prompt parsing inside Domain.",
+      "verification": "mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && ./init.sh",
+      "dependencies": [
+        "feat-004"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red verified with `帮我看一下 AGENTS.md` returning no tool execution before the port. Green verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (2 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-006",
+      "name": "Workspace traversal denial",
+      "behavior": "Domain permission rules deny every file_read request containing parent-directory traversal before Infrastructure reads from the workspace.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=PermissionDomainServiceTest && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-005"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red first failed as expected with `expected:<DENY> but was:<ALLOW>` for `AGENTS.md/..`. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=PermissionDomainServiceTest` (1 test, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-007",
+      "name": "Tool registry domain model",
+      "behavior": "Conversation runtime resolves model-requested tools through a Domain tool registry so unsupported tool calls return an explicit answer and future tools can be added without hardcoding every decision branch.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ToolRegistryDomainServiceTest,ConversationRuntimeServiceTest && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-006"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red first failed because `ToolRegistryDomainService` did not exist; second red exposed unsupported tool answer as null. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ToolRegistryDomainServiceTest,ConversationRuntimeServiceTest` (2 tests, 0 failures, 0 errors). App vertical-slice regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (2 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-008",
+      "name": "Tool descriptor metadata",
+      "behavior": "Domain tool registry exposes immutable tool descriptors with name, description, and default permission behavior so model prompts and permission surfaces can be generated from Domain metadata.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ToolRegistryDomainServiceTest && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-007"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red first failed because `ToolDescriptorVO` did not exist. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ToolRegistryDomainServiceTest` (2 tests, 0 failures, 0 errors). Related domain regression passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ToolRegistryDomainServiceTest,ConversationRuntimeServiceTest,PermissionDomainServiceTest` (4 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-009",
+      "name": "Task lifecycle domain model",
+      "behavior": "Domain models Digital Employee task lifecycle with task type, status, generated id prefix, creation metadata, terminal status rules, and valid status transitions based on Claude Code's Task core.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=TaskLifecycleDomainServiceTest && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-008"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red first failed because task Domain packages did not exist. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=TaskLifecycleDomainServiceTest` (3 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-010",
+      "name": "Task creation API slice",
+      "behavior": "Expose task lifecycle through the DDD vertical slice with API DTOs, Case orchestration, an in-memory Infrastructure repository, and HTTP endpoint to create a Digital Employee task.",
+      "verification": "mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeTaskApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-009"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red first failed because `TaskCreateRequestDTO` did not exist. Green verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeTaskApiTest -Dsurefire.failIfNoSpecifiedTests=false` (1 test, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-011",
+      "name": "Model decision request context",
+      "behavior": "Conversation runtime calls the model decision port with a structured request containing conversation id, user message, and available Domain tool descriptors instead of separate primitive arguments.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ConversationRuntimeServiceTest,ToolRegistryDomainServiceTest && mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-010"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red first failed because `ModelDecisionRequestVO` did not exist. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ConversationRuntimeServiceTest,ToolRegistryDomainServiceTest` (4 tests, 0 failures, 0 errors). Conversation API regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (2 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-012",
+      "name": "Memory context domain slice",
+      "behavior": "Domain models memory context entries and builds a bounded context block for a conversation so future model decisions can receive project/session memory without reading chat history.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=MemoryContextDomainServiceTest && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-011"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red first failed because memory Domain packages did not exist. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=MemoryContextDomainServiceTest` (1 test, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-013",
+      "name": "Runtime acceptance checkpoint",
+      "behavior": "The migrated Digital Employee runtime exposes a verified minimal backend acceptance path: create a task, submit a conversation message, model decision selects file_read, permission allows workspace read, and response records tool execution.",
+      "verification": "mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeTaskApiTest,DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-012"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: Acceptance verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeTaskApiTest,DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (3 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-014",
+      "name": "Task query and transition API",
+      "behavior": "Expose task retrieval, task listing, and task lifecycle transitions through HTTP so the Digital Employee runtime can inspect and advance in-memory tasks after creation.",
+      "verification": "mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeTaskApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-013"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red first failed as expected because `GET /api/v1/tasks/{taskId}` returned 404 before the endpoints existed. Green verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeTaskApiTest -Dsurefire.failIfNoSpecifiedTests=false` (2 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules while the feature was active."
+    },
+    {
+      "id": "feat-015",
+      "name": "Memory context decision injection",
+      "behavior": "Conversation runtime includes a bounded memory context block in the structured model decision request so future model providers can decide with project and session memory.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ConversationRuntimeServiceTest && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-014"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red first failed because `ConversationRuntimeService` had no memory-context constructor and `ModelDecisionRequestVO` had no `getMemoryContext()`. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ConversationRuntimeServiceTest` (3 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules while the feature was active."
+    },
+    {
+      "id": "feat-016",
+      "name": "Model provider boundary",
+      "behavior": "Model decision adapters expose provider metadata through a Domain-owned boundary so deterministic local execution and future external model gateways can be selected without changing conversation runtime rules.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=DeterministicModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-015"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-23: TDD red first failed because Domain had no `ModelProviderVO`. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=DeterministicModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` (1 test, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules while the feature was active."
+    },
+    {
+      "id": "feat-017",
+      "name": "File write tool permission slice",
+      "behavior": "Conversation runtime supports a registered file_write tool that writes UTF-8 content inside the workspace only after Domain permission checks deny empty, absolute, or parent-directory traversal paths.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=PermissionDomainServiceTest,ToolRegistryDomainServiceTest,ConversationRuntimeServiceTest && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-016"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because Domain had no `IWorkspaceFileWritePort`; API red later confirmed deterministic model decisions did not yet choose `file_write`. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=PermissionDomainServiceTest,ToolRegistryDomainServiceTest,ConversationRuntimeServiceTest` (9 tests, 0 failures, 0 errors). API regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (3 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules while the feature was active."
+    },
+    {
+      "id": "feat-018",
+      "name": "File edit tool permission slice",
+      "behavior": "Conversation runtime supports a registered file_edit tool that edits a workspace file by replacing an expected text fragment after Domain permission checks and before writing the updated content through the workspace write port.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ToolRegistryDomainServiceTest,ConversationRuntimeServiceTest && mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-017"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `file_edit` was not registered and runtime did not write edited content. API red later confirmed deterministic model decisions did not yet choose `file_edit`. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ToolRegistryDomainServiceTest,ConversationRuntimeServiceTest` (9 tests, 0 failures, 0 errors). API regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (4 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with BUILD SUCCESS for all 8 modules while the feature was active."
+    },
+    {
+      "id": "feat-019",
+      "name": "Bash command permission policy boundary",
+      "behavior": "Conversation runtime supports a registered bash tool boundary that evaluates shell commands through a conservative Domain permission policy and returns an explicit non-execution result until real shell execution is intentionally enabled.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=PermissionDomainServiceTest,ToolRegistryDomainServiceTest,ConversationRuntimeServiceTest && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-018"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `PermissionDomainService` did not have `decideBashCommand`. API red later confirmed deterministic model decisions returned a direct answer instead of choosing `bash` for `运行 ls docs`. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=PermissionDomainServiceTest,ToolRegistryDomainServiceTest,ConversationRuntimeServiceTest` (16 tests, 0 failures, 0 errors). API regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (5 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (19 features, 0 active), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-020",
+      "name": "Shell command execution port skeleton",
+      "behavior": "Conversation runtime owns a Domain shell command execution port and command result value object so allowed bash commands can be routed to a configured adapter, while the default runtime remains explicitly disabled.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ConversationRuntimeServiceTest && mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-019"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because Domain had no `IShellCommandPort` and no `ShellCommandResultVO`. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ConversationRuntimeServiceTest` (8 tests, 0 failures, 0 errors). API regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (5 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (20 features, 0 active), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-021",
+      "name": "Workspace-safe shell command adapter",
+      "behavior": "Infrastructure provides a workspace-root constrained shell command adapter for already-permitted read-only bash commands, and the Spring conversation vertical slice returns captured command output for safe commands.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=WorkspaceShellCommandPortTest -Dsurefire.failIfNoSpecifiedTests=false && mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-020"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `WorkspaceShellCommandPort` did not exist. App red also failed at Infrastructure test compilation before the Spring conversation slice could run. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=WorkspaceShellCommandPortTest -Dsurefire.failIfNoSpecifiedTests=false` (4 tests, 0 failures, 0 errors). API regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (5 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (21 features, 0 active), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-022",
+      "name": "Shell command output summary limit",
+      "behavior": "Shell command results summarize stdout and stderr with a bounded preview so safe read-only commands cannot produce unbounded conversation responses.",
+      "verification": "mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ShellCommandResultVOTest,ConversationRuntimeServiceTest && mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-021"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `ShellCommandResultVO.summarize()` returned 1500-character stdout/stderr without truncation. Green verification passed with `mvn -pl digital-employee-domain test -DskipTests=false -Dtest=ShellCommandResultVOTest,ConversationRuntimeServiceTest` (10 tests, 0 failures, 0 errors). API regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (5 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (22 features, 0 active), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-023",
+      "name": "Unsafe shell command API denial regression",
+      "behavior": "Conversation API returns Domain permission denial for unsafe bash prompts, including destructive commands and parent-directory traversal, without returning command execution output.",
+      "verification": "mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-022"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: Regression-only TDD slice; new API tests for `运行 rm -rf target` and `运行 cat ../secret.txt` passed immediately because the existing Domain permission policy already denied destructive commands and parent-directory traversal. Verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (7 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (23 features, 0 active), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-024",
+      "name": "Conversation history repository API",
+      "behavior": "Conversation turns are saved behind a Domain repository port and can be queried through a conversation history API by conversation id.",
+      "verification": "mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-023"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `GET /api/v1/conversations/{conversationId}/messages` returned 405 before the history endpoint existed. Green verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (8 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (24 features, 0 active), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-025",
+      "name": "Conversation history isolation regression",
+      "behavior": "Conversation histories are isolated by conversation id so querying one conversation never returns messages from another conversation.",
+      "verification": "mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-024"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: Regression-only TDD slice; new API test for `history-alpha` and `history-beta` passed immediately because the existing conversation repository groups messages by conversation id. Verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (9 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (25 features, 0 active), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-026",
+      "name": "Conversation history decision context",
+      "behavior": "Conversation runtime receives bounded prior conversation messages in the structured model decision request so future model providers can reason from earlier turns without loading unrelated conversations.",
+      "verification": "mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-025"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because the second message `上一条用户消息是什么` returned the default deterministic response instead of prior history. Green verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (10 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (26 features, 0 active), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-027",
+      "name": "External model provider configuration boundary",
+      "behavior": "Model provider metadata can describe an external provider configuration using environment variable names without storing API key values or marking the deterministic provider as external.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=DeterministicModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-026"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `ModelProviderVO` had no `apiKeyEnvName` getter or builder field. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=DeterministicModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` (2 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (27 features, 0 active), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-028",
+      "name": "External model decision port stub",
+      "behavior": "Infrastructure can expose an external model decision port selected by configuration, while the default deterministic model decision port remains active when no external provider is configured and no network calls or API key values are stored.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,DeterministicModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-027"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `ExternalModelDecisionPort` and `ModelDecisionPortConfiguration` did not exist. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,DeterministicModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` (6 tests, 0 failures, 0 errors). Conversation API regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (10 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (28 features, 0 active), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-029",
+      "name": "External model gateway DTO mapping",
+      "behavior": "Infrastructure can map a Domain model decision request into external model gateway request/response DTOs without sending network calls or exposing API key values.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-028"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `ExternalModelGatewayRequestDTO`, `ExternalModelGatewayResponseDTO`, and `ExternalModelGatewayMapper` did not exist, and the test used an incorrect permission enum name. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` (4 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (29 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-030",
+      "name": "External model gateway service boundary",
+      "behavior": "The external model decision port routes Domain model decision requests through an Infrastructure gateway mapper and no-network gateway service boundary so future external provider calls can be enabled without changing Domain runtime code.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest,ExternalModelGatewayMapperTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-029"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `ExternalModelGatewayService` did not exist. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest,ExternalModelGatewayMapperTest,ModelDecisionPortSelectionTest -Dsurefire.failIfNoSpecifiedTests=false` (7 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (30 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-031",
+      "name": "External model gateway request validation",
+      "behavior": "The external model gateway service rejects blank provider, model, or input values before any future network call can be attempted, without including secret values in error messages.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ExternalModelGatewayMapperTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-030"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed with three assertions because blank provider, blank model, and blank input were not rejected by `ExternalModelGatewayService`. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest,ExternalModelGatewayMapperTest -Dsurefire.failIfNoSpecifiedTests=false` (8 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (31 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-032",
+      "name": "External model tool descriptor mapping",
+      "behavior": "External model gateway requests include structured tool descriptors with tool name, description, and default permission behavior so future model providers can receive the same Domain tool metadata used by deterministic decisions.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-031"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because gateway request tools were still `String` values without `getName()`, `getDescription()`, or `getDefaultPermissionBehavior()`. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` (8 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (32 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
     }
   ]
 }

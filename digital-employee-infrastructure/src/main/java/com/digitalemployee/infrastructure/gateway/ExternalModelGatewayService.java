@@ -9,6 +9,7 @@ public class ExternalModelGatewayService {
     public ExternalModelGatewayResponseDTO complete(String provider,
                                                     String baseUrl,
                                                     ExternalModelGatewayExecutionPolicyDTO executionPolicy,
+                                                    boolean networkEnabled,
                                                     ExternalModelGatewayRequestDTO request) {
         requireText(provider, "provider");
         requireText(baseUrl, "baseUrl");
@@ -18,6 +19,15 @@ public class ExternalModelGatewayService {
         }
         requireText(request.getModel(), "model");
         requireText(request.getInput(), "input");
+
+        if (networkEnabled) {
+            return ExternalModelGatewayResponseDTO.builder()
+                    .answer("external model network execution is enabled but HTTP adapter is not implemented: "
+                            + provider + "/" + request.getModel() + " @ " + baseUrl
+                            + " timeoutMs=" + executionPolicy.getTimeoutMs()
+                            + " retryAttempts=" + executionPolicy.getRetryAttempts())
+                    .build();
+        }
 
         return ExternalModelGatewayResponseDTO.builder()
                 .answer("external model gateway is configured but network execution is disabled: "

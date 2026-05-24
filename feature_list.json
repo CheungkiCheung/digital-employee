@@ -427,6 +427,17 @@
       ],
       "status": "passing",
       "evidence": "2026-05-24: TDD red first failed during Infrastructure test compilation because `ModelDecisionPortConfiguration#modelDecisionPort` and `ExternalModelDecisionPort` did not accept timeout/retry policy parameters. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` (11 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (39 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-040",
+      "name": "External model network execution switch",
+      "behavior": "External model provider selection accepts an explicit network-enabled switch that defaults to disabled; disabled mode never attempts a network call, and enabled mode returns an explicit not-implemented response until a real HTTP adapter is added.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-039"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed during Infrastructure test compilation because `ExternalModelGatewayService#complete`, `ExternalModelDecisionPort`, and `ModelDecisionPortConfiguration#modelDecisionPort` did not accept a network-enabled switch. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ModelDecisionPortSelectionTest,ExternalModelDecisionPortTest,ExternalModelGatewayServiceTest -Dsurefire.failIfNoSpecifiedTests=false` (13 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. `./init.sh` passed with feature_list.json valid (40 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
     }
   ]
 }

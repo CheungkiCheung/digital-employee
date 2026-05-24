@@ -18,6 +18,7 @@ public class ExternalModelDecisionPortTest {
                 "https://api.xiaomimimo.com/v1/chat/completions",
                 30000,
                 0,
+                false,
                 new ExternalModelGatewayService(), new ExternalModelGatewayMapper());
 
         ModelProviderVO provider = port.provider();
@@ -35,6 +36,7 @@ public class ExternalModelDecisionPortTest {
                 "https://api.xiaomimimo.com/v1/chat/completions",
                 45000,
                 2,
+                true,
                 new ExternalModelGatewayService(), new ExternalModelGatewayMapper());
 
         ModelDecisionVO decision = port.decideNextAction(ModelDecisionRequestVO.builder()
@@ -44,7 +46,7 @@ public class ExternalModelDecisionPortTest {
                 .availableTools(List.of())
                 .build());
 
-        Assert.assertTrue(decision.getDirectAnswer().contains("external model gateway is configured but network execution is disabled"));
+        Assert.assertTrue(decision.getDirectAnswer().contains("external model network execution is enabled but HTTP adapter is not implemented"));
         Assert.assertTrue(decision.getDirectAnswer().contains("openai/gpt-5.4"));
         Assert.assertTrue(decision.getDirectAnswer().contains("https://api.xiaomimimo.com/v1/chat/completions"));
         Assert.assertTrue(decision.getDirectAnswer().contains("timeoutMs=45000"));

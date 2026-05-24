@@ -19,11 +19,12 @@ public class ExternalModelDecisionPort implements IModelDecisionPort {
     private final String baseUrl;
     private final int timeoutMs;
     private final int retryAttempts;
+    private final boolean networkEnabled;
     private final ExternalModelGatewayService gatewayService;
     private final ExternalModelGatewayMapper gatewayMapper;
 
     public ExternalModelDecisionPort(String provider, String model, String apiKeyEnvName, String baseUrl,
-                                     int timeoutMs, int retryAttempts,
+                                     int timeoutMs, int retryAttempts, boolean networkEnabled,
                                      ExternalModelGatewayService gatewayService,
                                      ExternalModelGatewayMapper gatewayMapper) {
         this.provider = provider;
@@ -32,6 +33,7 @@ public class ExternalModelDecisionPort implements IModelDecisionPort {
         this.baseUrl = baseUrl;
         this.timeoutMs = timeoutMs;
         this.retryAttempts = retryAttempts;
+        this.networkEnabled = networkEnabled;
         this.gatewayService = gatewayService;
         this.gatewayMapper = gatewayMapper;
     }
@@ -49,7 +51,8 @@ public class ExternalModelDecisionPort implements IModelDecisionPort {
     @Override
     public ModelDecisionVO decideNextAction(ModelDecisionRequestVO request) {
         ExternalModelGatewayRequestDTO gatewayRequest = gatewayMapper.toGatewayRequest(model, request);
-        ExternalModelGatewayResponseDTO gatewayResponse = gatewayService.complete(provider, baseUrl, defaultExecutionPolicy(), gatewayRequest);
+        ExternalModelGatewayResponseDTO gatewayResponse = gatewayService.complete(provider, baseUrl, defaultExecutionPolicy(),
+                networkEnabled, gatewayRequest);
         return ModelDecisionVO.builder()
                 .type(ModelDecisionTypeVO.DIRECT_RESPONSE)
                 .directAnswer(gatewayMapper.toDirectAnswer(gatewayResponse))

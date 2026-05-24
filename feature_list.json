@@ -350,6 +350,28 @@
       ],
       "status": "passing",
       "evidence": "2026-05-24: TDD red first failed because gateway request tools were still `String` values without `getName()`, `getDescription()`, or `getDefaultPermissionBehavior()`. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` (8 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (32 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-033",
+      "name": "File conversation history repository adapter",
+      "behavior": "Infrastructure provides a file-backed conversation turn repository adapter that persists conversation messages by conversation id and can reload them from a new adapter instance without changing the Domain repository port.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-032"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `FileConversationTurnRepository` did not exist. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` (1 test, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (33 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-034",
+      "name": "Configurable conversation history repository",
+      "behavior": "Spring Infrastructure configuration selects the in-memory conversation repository by default and can select the file-backed repository when configured, without changing Domain or Case code.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ConversationTurnRepositoryConfigurationTest,FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false && mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-033"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `ConversationTurnRepositoryConfiguration` did not exist. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ConversationTurnRepositoryConfigurationTest,FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` (3 tests, 0 failures, 0 errors). Conversation API regression passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (10 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (34 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
     }
   ]
 }

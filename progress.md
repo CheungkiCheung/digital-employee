@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-05-24 14:01 Asia/Shanghai  
+**Last Updated:** 2026-05-24 16:41 Asia/Shanghai  
 **Active Feature:** none  
 **Repository:** `/Users/zhangqixiang/0_2实习/DDDAGENT`  
 **Target Remote:** `https://github.com/CheungkiCheung/digital-employee.git`
@@ -45,15 +45,17 @@
 - [x] Implemented and verified `feat-030`, external model gateway service boundary.
 - [x] Implemented and verified `feat-031`, external model gateway request validation.
 - [x] Implemented and verified `feat-032`, external model tool descriptor mapping.
+- [x] Implemented and verified `feat-033`, file conversation history repository adapter.
+- [x] Implemented and verified `feat-034`, configurable conversation history repository selection.
 
 ## What's In Progress
 
-- No active feature. WIP is clear for the next Goal-mode slice.
+- None. WIP is clear for the next Goal-mode slice.
 
 ## What's Next
 
 1. Continue deeper runtime slices in Goal mode.
-2. Recommended next feature: add explicit external model provider request validation or add persistence-backed conversation storage behind `IConversationTurnRepository`.
+2. Recommended next feature: prove the file-backed conversation repository through an app-level vertical slice with `digital-employee.conversation.repository=file`.
 3. Keep WIP=1 and run `./init.sh` before claiming completion.
 
 ## Decisions Made
@@ -193,6 +195,15 @@
 - [x] `feat-032` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 8 tests, 0 failures, 0 errors.
 - [x] `feat-032` architecture verification: `bash scripts/check-architecture.sh` passed.
 - [x] `feat-032` harness verification: `./init.sh` passed with feature_list.json valid (32 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
+- [x] `feat-033` red verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` failed because `FileConversationTurnRepository` did not exist.
+- [x] `feat-033` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 1 test, 0 failures, 0 errors.
+- [x] `feat-033` architecture verification: `bash scripts/check-architecture.sh` passed.
+- [x] `feat-033` harness verification: `./init.sh` passed with feature_list.json valid (33 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
+- [x] `feat-034` red verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ConversationTurnRepositoryConfigurationTest,FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` failed because `ConversationTurnRepositoryConfiguration` did not exist.
+- [x] `feat-034` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ConversationTurnRepositoryConfigurationTest,FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 3 tests, 0 failures, 0 errors.
+- [x] `feat-034` conversation regression verification: `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 10 tests, 0 failures, 0 errors.
+- [x] `feat-034` architecture verification: `bash scripts/check-architecture.sh` passed.
+- [x] `feat-034` harness verification: `./init.sh` passed with feature_list.json valid (34 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
 
 ## Sprint Contract: feat-004 - Claude Code Domain Runtime Slice
 

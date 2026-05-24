@@ -3,7 +3,7 @@
 ## Current Objective
 
 - Goal: Continue the Claude Code runtime migration into the Digital Employee DDD framework.
-- Current status: `feat-001` through `feat-032` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
+- Current status: `feat-001` through `feat-034` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
 - Active feature: none.
 - Branch / commit at original scaffold point: `5de09fd chore: initialize digital employee harness`.
 
@@ -25,6 +25,7 @@
 - [x] Added bounded shell stdout/stderr summaries to avoid unbounded conversation responses.
 - [x] Added API regression coverage proving unsafe shell prompts return Domain permission denial.
 - [x] Added conversation history repository port, in-memory adapter, and GET history endpoint.
+- [x] Added a file-backed conversation history repository adapter that can reload messages from disk.
 - [x] Added conversation history isolation regression coverage so separate conversation ids cannot leak messages into each other.
 - [x] Injected bounded same-conversation history into the model decision request context.
 - [x] Extended model provider metadata to carry API-key environment variable names without storing secret values.
@@ -33,6 +34,7 @@
 - [x] Routed the external model decision port through a no-network external model gateway service boundary.
 - [x] Added external model gateway request validation for provider, model, and input before future network execution.
 - [x] Added structured external model tool descriptor mapping with name, description, and default permission behavior.
+- [x] Added Spring Infrastructure configuration to select the in-memory conversation history repository by default or the file-backed repository when configured.
 - [x] Runtime acceptance checkpoint proving task creation and conversation file-read paths.
 
 ## Latest Verification Evidence
@@ -115,6 +117,15 @@
 | feat-032 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 8 tests, 0 failures, 0 errors. |
 | feat-032 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
 | feat-032 harness check | `./init.sh` | Passing | feature_list.json valid (32 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
+| feat-033 red test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` | Failed as expected | `FileConversationTurnRepository` did not exist before the file-backed adapter was added. |
+| feat-033 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 1 test, 0 failures, 0 errors. |
+| feat-033 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
+| feat-033 harness check | `./init.sh` | Passing | feature_list.json valid (33 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
+| feat-034 red test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ConversationTurnRepositoryConfigurationTest,FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` | Failed as expected | `ConversationTurnRepositoryConfiguration` did not exist before repository selection was configurable. |
+| feat-034 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ConversationTurnRepositoryConfigurationTest,FileConversationTurnRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 3 tests, 0 failures, 0 errors. |
+| feat-034 conversation regression | `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 10 tests, 0 failures, 0 errors; default in-memory repository still supports conversation API behavior. |
+| feat-034 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
+| feat-034 harness check | `./init.sh` | Passing | feature_list.json valid (34 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
 
 ## Important Files
 
@@ -141,6 +152,8 @@
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayToolList.java` - tool list helper that preserves name-based contains checks.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/config/ModelDecisionPortConfiguration.java` - configuration-based model decision port selection.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/adapter/repository/InMemoryConversationTurnRepository.java` - in-memory conversation history adapter.
+- `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/adapter/repository/FileConversationTurnRepository.java` - file-backed conversation history adapter.
+- `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/config/ConversationTurnRepositoryConfiguration.java` - configuration-based conversation history repository selection.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/adapter/port/DeterministicModelDecisionPort.java` - deterministic read/write/edit/bash prompt parsing.
 - `digital-employee-infrastructure/src/test/java/com/digitalemployee/infrastructure/adapter/port/DeterministicModelDecisionPortTest.java` - deterministic provider metadata test.
 - `digital-employee-domain/src/main/java/com/digitalemployee/domain/task/*` - task lifecycle Domain model and repository port.
@@ -171,21 +184,20 @@
 - Treat bash as a registered permission boundary first; real command execution remains disabled until a dedicated execution port and semantics are added.
 - Shell execution is now wired through Infrastructure, but only for Domain-allowed `pwd`, `ls`, and `cat` commands; Infrastructure also performs a second allowlist and workspace-path check.
 - Shell command summaries are capped at 1000 characters per stdout/stderr stream with a truncation marker.
-- Conversation history is currently in-memory and grouped by conversation id behind `IConversationTurnRepository`; API regression coverage verifies histories stay isolated by conversation id and Case injects bounded same-conversation history into model decision context.
+- Conversation history is grouped by conversation id behind `IConversationTurnRepository`; Infrastructure defaults to in-memory storage and can select file-backed storage with `digital-employee.conversation.repository=file`.
 - Keep tasks in-memory for now; persistence can be added later behind `ITaskRepository`.
 
 ## Blockers / Risks
 
 - `feat-003` remains blocked until the user gives concrete Digital Employee business capability requirements.
 - Current model behavior is still deterministic/local by default. External provider selection, structured gateway DTO mapping, no-network gateway service boundary, and provider/model/input validation exist; no Anthropic/OpenAI network gateway has been wired yet.
-- No GitHub push has been performed; target remote remains `https://github.com/CheungkiCheung/digital-employee.git`.
 
 ## Recommended Next Step
 
 Start the next Goal-mode slice with WIP=1. Good next choices:
 
-- Model route: add explicit external model gateway request validation before any future network call.
-- Persistence route: add a storage-backed conversation repository adapter while preserving `IConversationTurnRepository`.
+- Persistence route: add an app-level vertical slice proving `digital-employee.conversation.repository=file` persists conversation history through the configured Spring runtime.
+- Model route: add OpenAI-compatible chat-completions request mapping for future external provider execution, without network calls or secrets.
 - Runtime route: add another Claude Code-style tool boundary if needed by the next acceptance milestone.
 
 ## Next Session Startup

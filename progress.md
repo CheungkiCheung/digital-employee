@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-05-24 16:46 Asia/Shanghai  
+**Last Updated:** 2026-05-24 16:49 Asia/Shanghai  
 **Active Feature:** none  
 **Repository:** `/Users/zhangqixiang/0_2实习/DDDAGENT`  
 **Target Remote:** `https://github.com/CheungkiCheung/digital-employee.git`
@@ -48,6 +48,7 @@
 - [x] Implemented and verified `feat-033`, file conversation history repository adapter.
 - [x] Implemented and verified `feat-034`, configurable conversation history repository selection.
 - [x] Implemented and verified `feat-035`, file-backed conversation API persistence slice.
+- [x] Implemented and verified `feat-036`, OpenAI-compatible chat completions request mapping.
 
 ## What's In Progress
 
@@ -210,6 +211,10 @@
 - [x] `feat-035` feature verification: `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeFileConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 1 test, 0 failures, 0 errors.
 - [x] `feat-035` architecture verification: `bash scripts/check-architecture.sh` passed.
 - [x] `feat-035` harness verification: `./init.sh` passed with feature_list.json valid (35 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
+- [x] `feat-036` red verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest -Dsurefire.failIfNoSpecifiedTests=false` failed because `OpenAiChatCompletionRequestDTO` did not exist.
+- [x] `feat-036` feature verification: `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` passed with 9 tests, 0 failures, 0 errors.
+- [x] `feat-036` architecture verification: `bash scripts/check-architecture.sh` passed.
+- [x] `feat-036` harness verification: `./init.sh` passed with feature_list.json valid (36 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules.
 
 ## Sprint Contract: feat-004 - Claude Code Domain Runtime Slice
 

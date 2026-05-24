@@ -383,6 +383,17 @@
       ],
       "status": "passing",
       "evidence": "2026-05-24: TDD setup first failed during test compilation because the new test used `javax.annotation.Resource`, which is not available in this Spring Boot 3 test classpath; after switching to `@Autowired`, the behavioral red failed because the assertion expected a non-existent English deterministic response string while the persisted assistant message used the existing Chinese default response. Green verification passed with `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeFileConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` (1 test, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (35 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
+    },
+    {
+      "id": "feat-036",
+      "name": "OpenAI-compatible chat completions request mapping",
+      "behavior": "External model gateway mapping can convert a Domain model decision request into an OpenAI-compatible chat completions request shape with model, messages, and tool descriptors, without network calls or secret values.",
+      "verification": "mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false && bash scripts/check-architecture.sh && ./init.sh",
+      "dependencies": [
+        "feat-035"
+      ],
+      "status": "passing",
+      "evidence": "2026-05-24: TDD red first failed because `OpenAiChatCompletionRequestDTO` did not exist. Green verification passed with `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` (9 tests, 0 failures, 0 errors). `bash scripts/check-architecture.sh` passed. Final `./init.sh` passed with feature_list.json valid (36 features, 1 active before closure), DDD boundaries verified, and BUILD SUCCESS for all 8 modules."
     }
   ]
 }

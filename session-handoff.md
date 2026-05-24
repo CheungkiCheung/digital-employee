@@ -3,7 +3,7 @@
 ## Current Objective
 
 - Goal: Continue the Claude Code runtime migration into the Digital Employee DDD framework.
-- Current status: `feat-001` through `feat-035` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
+- Current status: `feat-001` through `feat-036` are implemented and verified, except `feat-003` remains intentionally blocked until the user gives product-specific business requirements.
 - Active feature: none.
 - Branch / commit at original scaffold point: `5de09fd chore: initialize digital employee harness`.
 
@@ -36,6 +36,7 @@
 - [x] Added structured external model tool descriptor mapping with name, description, and default permission behavior.
 - [x] Added Spring Infrastructure configuration to select the in-memory conversation history repository by default or the file-backed repository when configured.
 - [x] Added an app-level API regression proving `digital-employee.conversation.repository=file` writes conversation history to disk and a new file repository instance can reload it.
+- [x] Added OpenAI-compatible chat completions request DTO mapping without network calls or secret values.
 - [x] Runtime acceptance checkpoint proving task creation and conversation file-read paths.
 
 ## Latest Verification Evidence
@@ -132,6 +133,10 @@
 | feat-035 feature test | `mvn -pl digital-employee-app -am test -DskipTests=false -Dtest=DigitalEmployeeFileConversationApiTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 1 test, 0 failures, 0 errors; file-configured API history was reloaded by a new `FileConversationTurnRepository` instance. |
 | feat-035 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
 | feat-035 harness check | `./init.sh` | Passing | feature_list.json valid (35 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
+| feat-036 red test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest -Dsurefire.failIfNoSpecifiedTests=false` | Failed as expected | `OpenAiChatCompletionRequestDTO` did not exist before OpenAI-compatible request mapping was added. |
+| feat-036 feature test | `mvn -pl digital-employee-infrastructure -am test -DskipTests=false -Dtest=ExternalModelGatewayMapperTest,ExternalModelGatewayServiceTest,ExternalModelDecisionPortTest -Dsurefire.failIfNoSpecifiedTests=false` | Passing | 9 tests, 0 failures, 0 errors. |
+| feat-036 architecture check | `bash scripts/check-architecture.sh` | Passing | DDD boundaries verified. |
+| feat-036 harness check | `./init.sh` | Passing | feature_list.json valid (36 features, 1 active before closure), DDD boundaries verified, BUILD SUCCESS for all 8 modules. |
 
 ## Important Files
 
@@ -156,6 +161,7 @@
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayResponseDTO.java` - external model response DTO.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayToolDTO.java` - structured external tool descriptor DTO.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/ExternalModelGatewayToolList.java` - tool list helper that preserves name-based contains checks.
+- `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/gateway/dto/OpenAiChatCompletionRequestDTO.java` - OpenAI-compatible chat completions request DTO.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/config/ModelDecisionPortConfiguration.java` - configuration-based model decision port selection.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/adapter/repository/InMemoryConversationTurnRepository.java` - in-memory conversation history adapter.
 - `digital-employee-infrastructure/src/main/java/com/digitalemployee/infrastructure/adapter/repository/FileConversationTurnRepository.java` - file-backed conversation history adapter.
